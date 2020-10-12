@@ -1068,7 +1068,7 @@ def rpn_bbox_loss_graph(config, target_bbox, rpn_match, rpn_bbox):
                                    config.IMAGES_PER_GPU)
 
     loss = smooth_l1_loss(target_bbox, rpn_bbox)
-    
+
     loss = K.switch(tf.size(loss) > 0, K.mean(loss), tf.constant(0.0))
     return loss
 
@@ -2274,7 +2274,7 @@ class MaskRCNN():
             "*epoch*", "{epoch:04d}")
 
     def train(self, train_dataset, val_dataset, learning_rate, epochs, layers,
-              augmentation=None, custom_callbacks=None, no_augmentation_sources=None):
+              augmentation=None, custom_callbacks=None, no_augmentation_sources=None, override_callbacks=False):
         """Train the model.
         train_dataset, val_dataset: Training and validation Dataset objects.
         learning_rate: The learning rate to train with
@@ -2345,7 +2345,10 @@ class MaskRCNN():
 
         # Add custom callbacks to the list
         if custom_callbacks:
-            callbacks += custom_callbacks
+            if override_callbacks:
+                callbacks = custom_callbacks
+            else:
+                callbacks += custom_callbacks
 
         # Train
         log("\nStarting at epoch {}. LR={}\n".format(self.epoch, learning_rate))
